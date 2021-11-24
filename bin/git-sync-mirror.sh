@@ -79,10 +79,12 @@ sync(){
     | git update-ref --stdin
 
     git push \
+      $( [ "${FORCE}" = true ] && echo "-f" ) \
       --all \
       "${dst_repo}" \
     || [ "${TWO_WAY}" = true ]
     git push \
+      $( [ "${FORCE}" = true ] && echo "-f" ) \
       --tags \
       "${dst_repo}" \
     || [ "${TWO_WAY}" = true ]
@@ -149,8 +151,14 @@ DST_REPO="${DST_REPO?Missing destination repository}"
 DST_REPO_TOKEN="${DST_REPO_TOKEN:-""}"
 DST_REPO_TOKEN_USER="${DST_REPO_TOKEN_USER:-""}"
 
+FORCE="${FORCE:-false}"
 PRUNE="${PRUNE:-false}"
 TWO_WAY="${TWO_WAY:-false}"
+
+if [ "${TWO_WAY}" = true -a "${FORCE}" = true ]; then
+  echo "TWO_WAY and FORCE are in conflict. Please use only either option."
+  exit 1
+fi
 
 HTTP_TLS_VERIFY="${HTTP_TLS_VERIFY:-true}"
 HTTP_SRC_PROXY="${HTTP_SRC_PROXY:-""}"
